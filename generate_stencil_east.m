@@ -71,13 +71,13 @@ T_Somega= (T_SW + 3*T_S)/4;
 
 % Gradients (Greens theorem) (A.15 -A.20)
 dTdx_somega =   (dy_w_Sw*T_sw + dy_Sw_S*T_Somega + dy_S_P*T_s + dy_P_w*T_omega) /S_somega;
-dTdy_somega =   (dx_w_Sw*T_sw + dx_Sw_S*T_Somega + dx_S_P*T_s + dx_P_w*T_omega) /S_somega;
+dTdy_somega =  -(dx_w_Sw*T_sw + dx_Sw_S*T_Somega + dx_S_P*T_s + dx_P_w*T_omega) /S_somega;
 
 dTdx_w    =   (dy_nW_sW*T_W + dy_sW_s*T_sw + dy_s_n*T_P + dy_n_nW*T_nw) /S_w;
-dTdy_w    =   (dx_nW_sW*T_W + dx_sW_s*T_sw + dx_s_n*T_P + dx_n_nW*T_nw) /S_w;
+dTdy_w    =  -(dx_nW_sW*T_W + dx_sW_s*T_sw + dx_s_n*T_P + dx_n_nW*T_nw) /S_w;
 
 dTdx_nomega =   (dy_Nw_w*T_nw + dy_w_P*T_omega + dy_P_N*T_n + dy_N_Nw*T_Nomega) /S_nomega;
-dTdy_nomega =   (dx_Nw_w*T_nw + dx_w_P*T_omega + dx_P_N*T_n + dx_N_Nw*T_Nomega) /S_nomega;
+dTdy_nomega =  -(dx_Nw_w*T_nw + dx_w_P*T_omega + dx_P_N*T_n + dx_N_Nw*T_Nomega) /S_nomega;
 
 
 % Build whole stecil acounting for quadratic lamda like in Helmholtz (A.14)

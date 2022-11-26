@@ -1,4 +1,4 @@
-function T = solveFVM(dimY, dimX, X, Y, boundary, TD, lamda, alpha, Tinf, dt, tend, timeintegrationType, theta, simulationType, T)
+function T = solveFVM(dimY, dimX, X, Y, boundary, TD, lamda, alpha, Tinf, dt, tend, TimeIntegrType, theta, simulationType)
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -97,14 +97,47 @@ for i = 1:dimY
     end
 end
 
-
 % Solve the linear system
 T1(:) = A \ B';
 
 % Convert solution vector into matrix
-T = zeros(dimY,dimX);
-for j = 1:dimX
-    for i = 1:dimY
-        T(i,j) = T(i,j) + T1(index(i,j));
+T(:,:,1) = reshape(T1, [dimY,dimX]);
+
+%% Transient case
+if strcmp(simulationType, 'unsteady')
+
+    T(:,:,1) = reshape(B, [dimY,dimX]); %initial value
+
+    %Explicit & Implicit are subcases of Theta Scheme
+    if strcmp(TimeIntegrType, 'Explicit')
+        theta = 0;
+    elseif strcmp(TimeIntegrType, 'Implicit')
+        theta = 1;
+    end
+
+    % Theta Scheme
+    if ~strcmp(TimeIntegrType, 'RungeKutta4')
+
+        Astar = eye(dimX*dimY) - A*dt*theta;                            % A*
+        for t = 1:(tend/dt-1)
+            Tvec = reshape(T(:,:,t), [dimX*dimY, 1]);                   % From matrix to vector (initial)
+            Bstar = (eye(dimX*dimY) + dt*(1-theta)*A) * Tvec - dt*B';   % B*
+            Ttr_vec(:) = Astar \ Bstar;                                 % Linear computarion: A* T = B*
+            T(:,:,t+1) = reshape(Ttr_vec, [dimY,dimX]);                 % From vector to matrix (output)
+        end
+
+    % Runge Kutta 4 Scheme
+    else
+        
+        for t = 1:(tend/dt-1)
+            Tvec = reshape(T(:,:,t), [dimX*dimY, 1]);                   % From matrix to vector (initial)
+            Ti   = Tvec + dt*(A*Tvec - B')/2;                            % Predictor for t = (n + 1/2)Δt
+            Tii  = Tvec + dt*(A*Ti   - B')/2;                            % Corrector for t = (n + 1/2)Δt
+            Tiii = Tvec + dt*(A*Tii  - B');                              % Predictor for t = (n + 1)Δt
+            Ttr_vec(:) = Tvec + dt*(A*Tvec + 2*A*Ti + 2*A*Tii ...
+                + A*Tiii)/6 - dt*B';                                     % Corrector for t = (n + 1)Δt
+            T(:,:,t+1) = reshape(Ttr_vec, [dimY,dimX]);                 % From vector to matrix (output)
+        end
+
     end
 end

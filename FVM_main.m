@@ -21,15 +21,15 @@ InitFVM
 [X, Y] = setUpMesh(dimY, dimX, l, formfunction);
 
 %% Fill matrix A and vector B. Solve the linear system.
-T = zeros(dimY, dimX);
 
 switch simulationType
     case 'steady'
-        T   = solveFVM(dimY, dimX, X, Y, boundary, TD, lamda, alpha, Tinf, dt, tend, timeintegrationType, theta, simulationType, T);
-    case 'transient'
-        Ttr = solveFVM(dimY, dimX, X, Y, boundary, TD, lamda, alpha, Tinf, dt, tend, timeintegrationType, theta, simulationType, T);
+        T   = solveFVM(dimY, dimX, X, Y, boundary, TD, lamda, alpha, Tinf, dt, tend, TimeIntegrType, theta, simulationType);
+    case 'unsteady'
+        T = solveFVM(dimY, dimX, X, Y, boundary, TD, lamda, alpha, Tinf, dt, tend, TimeIntegrType, theta, simulationType);
     otherwise
         error(false, 'false simulation type specified: %s', simulationType);
 end
+
 %% Make some plots
 postprocess;

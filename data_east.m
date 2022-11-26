@@ -33,13 +33,13 @@
             y_N     = Y(i-1,j);     x_N     = X(i-1,j);
             y_SW    = Y(i+1,j-1);   x_SW    = X(i+1,j-1);
             y_NW    = Y(i-1,j-1);   x_NW    = X(i-1,j-1);
-
+            
         % Auxiliary node coordinates
             y_Nw = (y_NW + y_N)/2;  x_Nw = (x_NW + x_N)/2;
             y_Sw = (y_SW + y_S)/2;  x_Sw = (x_SW + x_S)/2;
             y_sW = (y_SW + y_W)/2;  x_sW = (x_SW + x_W)/2;
             y_nW = (y_NW + y_W)/2;  x_nW = (x_NW + x_W)/2;
-    
+
             y_s  = (y_P + y_S)/2;   x_s  = (x_P + x_S)/2;
             y_n  = (y_P + y_N)/2;   x_n  = (x_P + x_N)/2;
             y_w  = (y_P + y_W)/2;   x_w  = (x_P + x_W)/2;
