@@ -20,7 +20,7 @@
 % 1) 'linear'
 % 2) 'quadratic'
 % 3) 'crazy'
-shape = 'linear';
+shape = 'crazy';
 
 % Define dimension of the trapezoidal domain
 % h2 <= h1 !
@@ -60,10 +60,10 @@ Tinf = 0;
 
 %% Boundary conditions (Only Dirichlet applied in Session 03) 
 % Type: 1) 'Dirichlet'    2) 'Neumann'    3) 'Robin'
-boundary.south = 'Neumann'; %q=0 for mirroring
+boundary.south = 'Neumann'; % q=0 for mirroring
 boundary.north = 'Robin';
 boundary.east  = 'Robin';
-boundary.west  = 'Dirichlet';
+boundary.west  = 'Dirichlet'; % only Dirichlet can be applied
 
 % Values for Dirichlet BC
 TD.north = 10;
@@ -85,7 +85,6 @@ minlamda = 1;                       % minimum lamda value
 deltalamda = 100;                   % lamda difference from side to side (x axis)
 
 maxlamda = minlamda + deltalamda;   % maximum lamda value
-
 switch heat_conduc
 
     case 'homogenous'
@@ -125,10 +124,15 @@ simulationType = 'unsteady';
 % 4) 'RungeKutta4'
 TimeIntegrType = 'Theta';
 
-% Parameter for theta scheme
+% Parameter for theta scheme  (0 <= θ <= 1)
 %  θ = 0: Explicit       θ = 0.5: Crank-Nicolson        θ = 1: Implicit
 theta = 0.5;
 
 % Timestep size and Endtime for unsteady case
 dt = 0.05;  % timestep  (when explicit or Runge Kutta 4 it should be around 0.001)
 tend = 12; % end-time
+
+
+if strcmp(TimeIntegrType, 'Explicit') || strcmp(TimeIntegrType, 'RungeKutta4')
+    dt=0.001;
+end

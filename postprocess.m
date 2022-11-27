@@ -1,3 +1,5 @@
+clc; close all;
+
 fprintf('Shape of Fin:\t\t\t\t %s\n', shape)
 fprintf('Lamda Distribution:\t\t\t %s\n', heat_conduc)
 fprintf('Simulation Type:\t\t\t %s\n', simulationType)
@@ -36,10 +38,19 @@ switch simulationType
 
     case 'unsteady'
 
-        fprintf('Time Discretization Scheme:\t %s\n', TimeIntegrType)
-        i=1;
+        if strcmp(TimeIntegrType, 'Theta') && theta == 0.5
+            fprintf('Time Discretization Scheme:\t Crank-Nicolson\n')
+        elseif strcmp(TimeIntegrType, 'Theta') && theta == 0
+            fprintf('Time Discretization Scheme:\t Explicit\n')
+        elseif strcmp(TimeIntegrType, 'Theta') && theta == 1
+            fprintf('Time Discretization Scheme:\t Implicit\n')
+        else
+            fprintf('Time Discretization Scheme:\t %s\n', TimeIntegrType)
+        end
+
+        i=1; % plotting step
         if strcmp(TimeIntegrType, 'Explicit') || strcmp(TimeIntegrType, 'RungeKutta4')
-            i=10;
+            i=10;  % raise the step because those 2 methods need too small Δt
         end
 
         %% 3D Plot

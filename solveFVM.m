@@ -87,6 +87,7 @@ if strcmp(boundary.west, 'Dirichlet')
 end
 
 %% Steady Case
+
 % Set up the system matrix A
 A = zeros(dimY*dimX);
 
@@ -103,7 +104,7 @@ T1(:) = A \ B';
 % Convert solution vector into matrix
 T(:,:,1) = reshape(T1, [dimY,dimX]);
 
-%% Transient case
+%% Unsteady case
 if strcmp(simulationType, 'unsteady')
 
     T(:,:,1) = reshape(B, [dimY,dimX]); %initial value
