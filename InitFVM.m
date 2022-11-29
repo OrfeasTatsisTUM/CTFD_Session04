@@ -20,7 +20,7 @@
 % 1) 'linear'
 % 2) 'quadratic'
 % 3) 'crazy'
-shape = 'crazy';
+shape = 'quadratic';
 
 % Define dimension of the trapezoidal domain
 % h2 <= h1 !
@@ -126,13 +126,85 @@ TimeIntegrType = 'Theta';
 
 % Parameter for theta scheme  (0 <= θ <= 1)
 %  θ = 0: Explicit       θ = 0.5: Crank-Nicolson        θ = 1: Implicit
-theta = 0.5;
+theta = 0;
 
 % Timestep size and Endtime for unsteady case
-dt = 0.05;  % timestep  (when explicit or Runge Kutta 4 it should be around 0.001)
+dt = 0.003;  % timestep  (when explicit or Runge Kutta 4 it should be around 0.001)
 tend = 12; % end-time
 
+% Critical Δt
+if strcmp(simulationType, 'unsteady')
+    if (theta >= 0 && theta < 0.5)
+        D = 60; % Thermal conductivity (λ/(ρ*c_p)) [mm^2/s]
+        % https://en.wikipedia.org/wiki/Thermal_diffusivity
+        % Material	                                Thermal diffusivity (mm2/s)
+        % Pyrolytic graphite, parallel to layers	1220
+        % Carbon/carbon composite at 25 °C	        216.5
+        % Helium (300 K, 1 atm)	                    190
+        % Silver, pure (99.9%)	                    165.63
+        % Hydrogen (300 K, 1 atm)	                160
+        % Gold	                                    127
+        % Copper at 25 °C	                        111
+        % Aluminium	                                97
+        % Silicon	                                88
+        % Al-10Si-Mn-Mg (Silafont 36) at 20 °C	    74.2
+        % Aluminium 6061-T6 Alloy	                64
+        % Molybdenum (99.95%) at 25 °C	            54.3
+        % Al-5Mg-2Si-Mn (Magsimal-59) at 20 °C	    44
+        % Tin	                                    40
+        % Water vapor (1 atm, 400 K)	            23.38
+        % Iron	                                    23
+        % Argon (300 K, 1 atm)	                    22
+        % Nitrogen (300 K, 1 atm)	                22
+        % Air (300 K)	                            19
+        % Steel, AISI 1010 (0.1% carbon)	        18.8
+        % Aluminium oxide (polycrystalline)	        12
+        % Steel, 1% carbon	                        11.72
+        % Si3N4 with CNTs 26 °C	                    9.142
+        % Si3N4 without CNTs 26 °C	                8.605
+        % Steel, stainless 304A at 27 °C	        4.2
+        % Pyrolytic graphite, normal to layers	    3.6
+        % Steel, stainless 310 at 25 °C	            3.352
+        % Inconel 600 at 25 °C	                    3.428
+        % Quartz	                                1.4
+        % Sandstone	                                1.15
+        % Ice at 0 °C	                            1.02
+        % Silicon dioxide (polycrystalline)	        0.83
+        % Brick, common	                            0.52
+        % Glass, window	                            0.34
+        % Brick, adobe	                            0.27
+        % PC (polycarbonate) at 25 °C	            0.144
+        % Water at 25 °C	                        0.143
+        % PTFE (Polytetrafluorethylene) at 25 °C	0.124
+        % PP (polypropylene) at 25 °C	            0.096
+        % Nylon	                                    0.09
+        % Rubber	                                0.089 - 0.13
+        % Wood (yellow pine)	                    0.082
+        % Paraffin at 25 °C	                        0.081
+        % PVC (polyvinyl chloride)	                0.08
+        % Oil, engine (saturated liquid, 100 °C)	0.0738
+        % Alcohol	                                0.07
+        c = 0.9; % a constant smaller than 1 (calibration)
+        AR = 1;  % Aspect Ratio (dimX/dimY) AR=1->square
 
-if strcmp(TimeIntegrType, 'Explicit') || strcmp(TimeIntegrType, 'RungeKutta4')
-    dt=0.001;
+        % find average h
+        h_avg = 0;
+        [x_cur,y_cur] = meshgrid(0:(1/29):1,1:(-1/29):0);
+        for i = 1:30
+            h_cur = h1 * formfunction(x_cur(1,i));
+            h_avg = h_avg + h_cur;
+        end
+        h_avg = h_avg/30;
+
+        i = 1;
+        for n=300:4:10000
+            dt_crit(1,i) = n;
+            %dt_crit(2,i) = c * h_avg*l/(n - sqrt(n*(1+AR^2)/AR) + 1) / (4*D);
+            dx = l / (sqrt(n/AR)-1);
+            dy = h_avg / (sqrt(AR*n)-1);
+            dt_crit(2,i) = dx^2 * dy^2 / (dx^2 + dy^2) / (2*D*(1-2*theta));
+            i = i + 1;
+        end
+        plot(dt_crit(1,:),dt_crit(2,:));
+    end
 end

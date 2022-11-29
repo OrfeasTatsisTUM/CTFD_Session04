@@ -49,14 +49,14 @@ switch simulationType
         end
 
         i=1; % plotting step
-        if strcmp(TimeIntegrType, 'Explicit') || strcmp(TimeIntegrType, 'RungeKutta4')
-            i=10;  % raise the step because those 2 methods need too small Δt
+        if (theta >= 0 && theta < 0.5) || (strcmp(TimeIntegrType, 'RungeKutta4'))
+            i=100;  % raise the step because those 2 methods need too small Δt
         end
 
         %% 3D Plot
         filename = 'Transient_3D.gif';
         figure(1)
-        for t=1:i:size(T,3)
+        for t=1.0:i:size(T,3)
             surf(X,Y,T(:,:,t))
             hold on
             surf(X,-Y,T(:,:,t))
@@ -79,7 +79,7 @@ switch simulationType
         %% 2D Plot
         filename = 'Transient_2D.gif';
         figure(2)
-        for t=1:i:size(T,3)
+        for t=1.0:i:size(T,3)
             pcolor(X,Y,T(:,:,t))
             hold on
             pcolor(X,-Y,T(:,:,t))
@@ -108,7 +108,7 @@ switch simulationType
         %% Contour plot
         filename = 'Transient_Contour.gif';
         figure(3)
-        for t=1:i:size(T,3)
+        for t=1.0:i:size(T,3)
             contour(X,Y,T(:,:,t))
             hold on
             contour(X,-Y,T(:,:,t))
