@@ -25,7 +25,7 @@ shape = 'quadratic';
 % Define dimension of the trapezoidal domain
 % h2 <= h1 !
 h1 = 10;
-hm = 4;  % only necessary for quatratic option 
+hm = 4;  % only necessary for quadratic option
 h2 = 3;
 l  = 10;
 
@@ -34,7 +34,7 @@ dimX = 35;
 dimY = 30;
 
 switch shape
-    
+
     case 'linear'
         formfunction = @(xnorm) (1-xnorm)*h1/2 + xnorm*h2/2;
 
@@ -43,7 +43,7 @@ switch shape
         c2 = 2*hm - 3*h1/2 - h2/2;
         c3 = h1/2;
         formfunction = @(xnorm) c1*xnorm.^2 +c2*xnorm + c3;
-        
+
     case 'crazy'
         d1 = 3;
         d2 = 4;
@@ -51,14 +51,14 @@ switch shape
 
     otherwise
         error(false, 'false shape specified: %s', shape);
-    
+
 end
 
 %% Parameter for Conjugated Heat Transfer (For Session 04)
 alpha = 5;
 Tinf = 0;
 
-%% Boundary conditions (Only Dirichlet applied in Session 03) 
+%% Boundary conditions (Only Dirichlet applied in Session 03)
 % Type: 1) 'Dirichlet'    2) 'Neumann'    3) 'Robin'
 boundary.south = 'Neumann'; % q=0 for mirroring
 boundary.north = 'Robin';
@@ -103,10 +103,10 @@ switch heat_conduc
         for i=1:dimX
             lamda(1:dimY,i) = minlamda + dlamda * (i-1)*l/(dimX-1);
         end
-        
+
     otherwise
         error(false, 'false lamda type specified: %s', heat_conduc);
-        
+
 end
 clear minlamda maxlamda deltalamda dlamda
 
@@ -126,16 +126,16 @@ TimeIntegrType = 'Theta';
 
 % Parameter for theta scheme  (0 <= θ <= 1)
 %  θ = 0: Explicit       θ = 0.5: Crank-Nicolson        θ = 1: Implicit
-theta = 0;
+theta = 0.3;
 
 % Timestep size and Endtime for unsteady case
-dt = 0.003;  % timestep  (when explicit or Runge Kutta 4 it should be around 0.001)
+dt = 0.0025;  % timestep [s] (when Explicit or Runge Kutta 4 it should be around 0.001)
 tend = 12; % end-time
 
 % Critical Δt
 if strcmp(simulationType, 'unsteady')
     if (theta >= 0 && theta < 0.5)
-        D = 60; % Thermal conductivity (λ/(ρ*c_p)) [mm^2/s]
+        D = 39; % Thermal conductivity (λ/(ρ*c_p)) [mm^2/s]
         % https://en.wikipedia.org/wiki/Thermal_diffusivity
         % Material	                                Thermal diffusivity (mm2/s)
         % Pyrolytic graphite, parallel to layers	1220
@@ -184,7 +184,6 @@ if strcmp(simulationType, 'unsteady')
         % PVC (polyvinyl chloride)	                0.08
         % Oil, engine (saturated liquid, 100 °C)	0.0738
         % Alcohol	                                0.07
-        c = 0.9; % a constant smaller than 1 (calibration)
         AR = 1;  % Aspect Ratio (dimX/dimY) AR=1->square
 
         % find average h
@@ -196,15 +195,33 @@ if strcmp(simulationType, 'unsteady')
         end
         h_avg = h_avg/30;
 
+        % Calculate critical Δt
         i = 1;
-        for n=300:4:10000
+        dn_min = dimX*dimY;
+        for n=200:4:10000
             dt_crit(1,i) = n;
             %dt_crit(2,i) = c * h_avg*l/(n - sqrt(n*(1+AR^2)/AR) + 1) / (4*D);
             dx = l / (sqrt(n/AR)-1);
             dy = h_avg / (sqrt(AR*n)-1);
-            dt_crit(2,i) = dx^2 * dy^2 / (dx^2 + dy^2) / (2*D*(1-2*theta));
+            dt_crit(2,i) = dx^2 * dy^2 / (dx^2 + dy^2) / (2*D*(1-2*theta));  % Scriptum, p.66, [4.51]
+            % the above formula losses accuracy as the problem...
+            % becomes more durable against Δt changes
             i = i + 1;
+
+            % Save proposed Δt for use
+            if abs(dimX*dimY-n) < dn_min
+                dn_min = dimX*dimY-n;
+                i_min = i;
+            end
         end
-        plot(dt_crit(1,:),dt_crit(2,:));
+
+        % Display text with recommended Δt
+        format long
+        if dt>dt_crit(2,i_min)
+            fprintf(2, 'Warning! Δt is too high!\n \tRecommended value, approx.:\t %s \n', num2str(dt_crit(2,i_min),3))
+        else
+            fprintf('Recommended Δt, approx.:\t %s \n', num2str(dt_crit(2,i_min),3))
+        end
+        clear x_cur y_cur h_cur h_avg AR dn_min n
     end
 end
