@@ -1,6 +1,6 @@
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Define the parameters of the simulation
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% Geometry:
 %
@@ -20,7 +20,7 @@
 % 1) 'linear'
 % 2) 'quadratic'
 % 3) 'crazy'
-shape = 'quadratic';
+shape = 'crazy';
 
 % Define dimension of the trapezoidal domain
 % h2 <= h1 !
@@ -54,11 +54,11 @@ switch shape
 
 end
 
-%% Parameter for Conjugated Heat Transfer (For Session 04)
+%% Parameter for Conjugated Heat Transfer (Robin BC)
 alpha = 5;
 Tinf = 0;
 
-%% Boundary conditions (Only Dirichlet applied in Session 03)
+%% Boundary conditions
 % Type: 1) 'Dirichlet'    2) 'Neumann'    3) 'Robin'
 boundary.south = 'Neumann'; % q=0 for mirroring
 boundary.north = 'Robin';

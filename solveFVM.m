@@ -4,7 +4,7 @@ function T = solveFVM(dimY, dimX, X, Y, boundary, TD, lamda, alpha, Tinf, dt, te
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % File solveFVM.m
 %
-% This routine set up the linear system and solve it
+% This routine sets up the linear system and solves it
 %
 % input
 % T         Spatial Matrix T
@@ -24,9 +24,7 @@ function T = solveFVM(dimY, dimX, X, Y, boundary, TD, lamda, alpha, Tinf, dt, te
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Index maps the node position to the correct linear equation
-
 index = @(ii, jj) ii + (jj-1) * dimY;
-
 
 % B is the right-hand side of the linear system
 B = zeros(1,dimY*dimX);
@@ -86,7 +84,7 @@ if strcmp(boundary.west, 'Dirichlet')
     end
 end
 
-%% Steady Case
+%% Steady Case (Session 03)
 
 % Set up the system matrix A
 A = zeros(dimY*dimX);
@@ -104,12 +102,12 @@ T1(:) = A \ B';
 % Convert solution vector into matrix
 T(:,:,1) = reshape(T1, [dimY,dimX]);
 
-%% Unsteady case
+%% Unsteady case (Session 04)
 if strcmp(simulationType, 'unsteady')
 
     T(:,:,1) = reshape(B, [dimY,dimX]); %initial value
 
-    %Explicit & Implicit are subcases of Theta Scheme
+    % Explicit & Implicit are subcases of Theta Scheme
     if strcmp(TimeIntegrType, 'Explicit')
         theta = 0;
     elseif strcmp(TimeIntegrType, 'Implicit')
@@ -132,11 +130,11 @@ if strcmp(simulationType, 'unsteady')
         
         for t = 1:(tend/dt-1)
             Tvec = reshape(T(:,:,t), [dimX*dimY, 1]);                   % From matrix to vector (initial)
-            Ti   = Tvec + dt*(A*Tvec - B')/2;                            % Predictor for t = (n + 1/2)Δt
-            Tii  = Tvec + dt*(A*Ti   - B')/2;                            % Corrector for t = (n + 1/2)Δt
-            Tiii = Tvec + dt*(A*Tii  - B');                              % Predictor for t = (n + 1)Δt
+            Ti   = Tvec + dt*(A*Tvec - B')/2;                           % Predictor for t = (n + 1/2)Δt
+            Tii  = Tvec + dt*(A*Ti   - B')/2;                           % Corrector for t = (n + 1/2)Δt
+            Tiii = Tvec + dt*(A*Tii  - B');                             % Predictor for t = (n + 1)Δt
             Ttr_vec(:) = Tvec + dt*(A*Tvec + 2*A*Ti + 2*A*Tii ...
-                + A*Tiii)/6 - dt*B';                                     % Corrector for t = (n + 1)Δt
+                + A*Tiii)/6 - dt*B';                                    % Corrector for t = (n + 1)Δt
             T(:,:,t+1) = reshape(Ttr_vec, [dimY,dimX]);                 % From vector to matrix (output)
         end
 

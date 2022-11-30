@@ -1,16 +1,16 @@
 clear; close all; clc;
 
-%% Tatsis, Orfeas Emmanouil
-%% Fernando Cruz Ceravalls
-%% Yuechen Chen
+%% Orfeas Emmanouil, Tatsis
+%% Fernando, Cruz Ceravalls
+%% Yuechen, Chen
 
-%% SESSION_03
+%% SESSION_04
 %  TUM - Ass. Professorship for Thermo Fluid Dynamics
 %  WS022-023
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Program to solve the 2D steady heat equation in a non-Cartesian Grid by
-% the Finite Volumes Method.
+% Program to solve the 2D steady and unsteady heat equation in a 
+% non-Cartesian Grid by the Finite Volumes Method.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -21,15 +21,7 @@ InitFVM
 [X, Y] = setUpMesh(dimY, dimX, l, formfunction);
 
 %% Fill matrix A and vector B. Solve the linear system.
-
-switch simulationType
-    case 'steady'
-        T   = solveFVM(dimY, dimX, X, Y, boundary, TD, lamda, alpha, Tinf, dt, tend, TimeIntegrType, theta, simulationType);
-    case 'unsteady'
-        T = solveFVM(dimY, dimX, X, Y, boundary, TD, lamda, alpha, Tinf, dt, tend, TimeIntegrType, theta, simulationType);
-    otherwise
-        error(false, 'false simulation type specified: %s', simulationType);
-end
+T   = solveFVM(dimY, dimX, X, Y, boundary, TD, lamda, alpha, Tinf, dt, tend, TimeIntegrType, theta, simulationType);
 
 %% Make some plots
 postprocess;

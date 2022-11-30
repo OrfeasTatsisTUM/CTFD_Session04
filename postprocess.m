@@ -10,8 +10,10 @@ switch simulationType
 
         %% 2D Plot
         figure(1)
-        pcolor(X,Y,T);        hold on;
-        pcolor(X,-Y,T);       hold off;
+        s = pcolor(X,Y,T);        hold on;
+        s.FaceColor = 'interp';
+        s = pcolor(X,-Y,T);       hold off;
+        s.FaceColor = 'interp';
         if strcmp(shape, 'linear')
             axis([0 l -h1/2 h1/2 -1 1]) %limits of x & y axes
         elseif strcmp(shape, 'quadratic')
@@ -19,22 +21,35 @@ switch simulationType
         else
             axis([0 l -h1/2*1.45 h1/2*1.45 -1 1]) %limits of x & y axes
         end
-        set(gcf, 'Position',[70,150,550,550]);
+        xlabel('x'); ylabel('y');
+        hcb=colorbar;
+        set(get(hcb,'Title'),'String','T');     % insert label above colorbar
+        set(gcf, 'Position',[10,150,620,550]);
+        saveas(gcf,'Steady_2D.jpg')
 
         %% Contour Plot
         figure(2)
         contour(X,Y,T);        hold on;
         contour(X,-Y,T);       hold on;
-        plot(X(1,:),Y(1,:),'k');   hold on;
+        plot(X(1,:),Y(1,:),'k');    hold on;
         plot(X(1,:),-Y(1,:),'k');   hold off;
-        set(gcf, 'Position',[635,150,550,550]);
+        xlabel('x'); ylabel('y');
+        hcb=colorbar;
+        set(get(hcb,'Title'),'String','T');
+        set(gcf, 'Position',[640,150,620,550]);
+        saveas(gcf,'Steady_Contour.jpg')
 
         %% 3D Plot
         figure(3)
-        surf(X,Y,T);  hold on;
-        surf(X,-Y,T); hold off;
-        set(gcf, 'Position',[1200,150,550,550]);
+        s = surf(X,Y,T);  hold on;
+        s.FaceColor = 'interp';
+        s = surf(X,-Y,T); hold off;
+        s.FaceColor = 'interp';
+        xlabel('x'); ylabel('y'); zlabel('T');
+        set(gcf, 'Position',[1270,150,550,550]);
         view(45,24);            %view angle
+        saveas(gcf,'Steady_3D.jpg')
+        
 
 
     case 'unsteady'
@@ -50,9 +65,9 @@ switch simulationType
         end
 
         %% Plotting Step
-        i=1;
+        i=2;
         if (theta >= 0 && theta < 0.5) || (strcmp(TimeIntegrType, 'RungeKutta4'))
-            i=100;  % raise the step because those 2 methods need too small Δt
+            i=50;  % raise the step because those 2 methods need too small Δt
         end
 
         %% Critical Δt
@@ -75,14 +90,16 @@ switch simulationType
         end
 
         %% 3D Plot
-        filename = 'Transient_3D.gif';
+        filename = 'Unsteady_3D.gif';
         figure(2)
         for t=1.0:i:size(T,3)
-            surf(X,Y,T(:,:,t));        hold on;
-            surf(X,-Y,T(:,:,t));       hold off;
+            s = surf(X,Y,T(:,:,t));        hold on;
+            s.FaceColor = 'interp';   % values (colors) on nodes and not on elements
+            s = surf(X,-Y,T(:,:,t));       hold off;
+            s.FaceColor = 'interp';
             xlabel('x'); ylabel('y'); zlabel('T');
             title("t = " + t*dt + "[s]")
-            set(gcf, 'Position',[70,150,550,550]);
+            set(gcf, 'Position',[10,150,550,550]);
             view(45,24);            %view angle
 
             % Record into a GIF
@@ -98,16 +115,23 @@ switch simulationType
         end
 
         %% Contour plot
-        filename = 'Transient_Contour.gif';
+        filename = 'Unsteady_Contour.gif';
         figure(4)
         for t=1.0:i:size(T,3)
             contour(X,Y,T(:,:,t));      hold on;
             contour(X,-Y,T(:,:,t));     hold on;
             plot(X(1,:),Y(1,:),'k');    hold on;
             plot(X(1,:),-Y(1,:),'k');   hold off;
-            text(l-l/6,-Y(1,1)+Y(1,1)/10,['t = ', num2str(t*dt)],'fontweight','bold')
+            text(l-l/6,-Y(1,1),['t = ', num2str(t*dt)],'fontweight','bold')
             xlabel('x'); ylabel('y');
-            set(gcf, 'Position',[635,150,550,550]);
+            if strcmp(shape, 'linear')
+                axis([0 l -h1/2 h1/2 -1 1]) %limits of x & y axes
+            else
+                axis([0 l -h1/2*1.15 h1/2*1.15 -1 1]) %limits of x & y axes
+            end
+            hcb=colorbar;
+            set(get(hcb,'Title'),'String','T');     % insert label above colorbar
+            set(gcf, 'Position',[570,150,620,550]);
 
             %Record into a GIF
             drawnow
@@ -122,21 +146,23 @@ switch simulationType
         end
 
         %% 2D Plot
-        filename = 'Transient_2D.gif';
+        filename = 'Unsteady_2D.gif';
         figure(3)
         for t=1.0:i:size(T,3)
-            pcolor(X,Y,T(:,:,t));        hold on;
-            pcolor(X,-Y,T(:,:,t));       hold off;
+            s = pcolor(X,Y,T(:,:,t));        hold on;
+            s.FaceColor = 'interp';
+            s = pcolor(X,-Y,T(:,:,t));       hold off;
+            s.FaceColor = 'interp';
             text(l-l/6,-Y(1,1),['t = ', num2str(t*dt)],'fontweight','bold')
             xlabel('x'); ylabel('y');
             if strcmp(shape, 'linear')
                 axis([0 l -h1/2 h1/2 -1 1]) %limits of x & y axes
-            elseif strcmp(shape, 'quadratic')
-                axis([0 l -h1/2*1.15 h1/2*1.15 -1 1]) %limits of x & y axes
             else
-                axis([0 l -h1/2*1.45 h1/2*1.45 -1 1]) %limits of x & y axes
+                axis([0 l -h1/2*1.15 h1/2*1.15 -1 1]) %limits of x & y axes
             end
-            set(gcf, 'Position',[1200,150,550,550]);
+            hcb=colorbar;
+            set(get(hcb,'Title'),'String','T');
+            set(gcf, 'Position',[1200,150,620,550]);
 
             %Record into a GIF
             drawnow
